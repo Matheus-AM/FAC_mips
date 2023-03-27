@@ -1,0 +1,61 @@
+          .data
+
+wrongNum:	.asciiz "Entrada invalida.\n"
+newline:	.asciiz "\n"
+
+          .text
+          
+.globl main
+
+main:
+
+	li $v0, 5	         #lendo o inteiro n
+        syscall
+        move $s0, $v0
+
+        slti $t8, $s0, 32767     #restricao de n
+        beq  $t8, $zero, berror
+
+	slti $t0, $s0, 1         # se n < 1
+	bne  $t0, $zero, berror
+
+	j eerror		
+	#begin error
+berror:
+	li $v0, 4
+       	la $a0, wrongNum 
+       	syscall
+       	j exit  
+eerror:
+	#end error
+	addi $s1, $zero, 2         # iniciando a divisao sempre por 2
+bwhile:
+        beq $s0, 1, ewhile         # go to end while if(n = 1)
+
+        div  $t2, $s0, $s1	 # n = n / div
+ 	mfhi $t3		 # resto
+        bne  $t3, $zero, else	 # if (resto != 0) go to else
+#if     			vai para else (linha 51)
+
+	li $v0, 1	         #printando o div
+	move $a0, $s1
+        syscall
+        
+        li $v0, 4	         #new line
+	la $a0, newline
+        syscall
+
+        div  $s0, $s0, $s1	# n = n / div
+        j    bwhile              # volta para o while
+        
+else:    
+        addi $s1, $s1, 1         # divisor = divisor + 1
+        j    bwhile                  # back to while begin
+        
+ewhile:
+
+exit:
+	li $v0, 10
+        syscall
+        
+	
